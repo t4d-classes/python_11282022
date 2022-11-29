@@ -2,10 +2,24 @@
 
 from typing import Any
 
+# def get_next_id(history):
+#     if not history:
+#         return 1
+#
+#     return max([entry["id"] for entry in history]) + 1
+
+
+def gen_entry_id():
+    counter = 0
+    while True:
+        counter = counter + 1
+        yield counter
+
 
 def calc_app(title: str) -> None:
     """ calc app function """
 
+    entry_id = gen_entry_id()
     result = 0.0
     history: list[Any] = []
 
@@ -21,7 +35,7 @@ def calc_app(title: str) -> None:
                 result = result + operand
                 print(f"Result: {result}")
                 history_entry = {
-                    "id": len(history) + 1,
+                    "id": next(entry_id),
                     "name": "add",
                     "value": operand
                 }
@@ -31,7 +45,7 @@ def calc_app(title: str) -> None:
                 result = result - operand
                 print(f"Result: {result}")
                 history_entry = {
-                    "id": len(history) + 1,
+                    "id": next(entry_id),
                     "name": "subtract",
                     "value": operand
                 }
@@ -41,7 +55,7 @@ def calc_app(title: str) -> None:
                 result = result * operand
                 print(f"Result: {result}")
                 history_entry = {
-                    "id": len(history) + 1,
+                    "id": next(entry_id),
                     "name": "multiply",
                     "value": operand
                 }
@@ -51,7 +65,7 @@ def calc_app(title: str) -> None:
                 result = result / operand
                 print(f"Result: {result}")
                 history_entry = {
-                    "id": len(history) + 1,
+                    "id": next(entry_id),
                     "name": "divide",
                     "value": operand
                 }
@@ -61,17 +75,28 @@ def calc_app(title: str) -> None:
                 result = result ** operand
                 print(f"Result: {result}")
                 history_entry = {
-                    "id": len(history) + 1,
+                    "id": next(entry_id),
                     "name": "exponent",
                     "value": operand
                 }
                 history.append(history_entry)
             case "history":
-                print(history)
+                for history_entry in history:
+                    print((
+                        f"{history_entry['id']}, "
+                        f"{history_entry['name']}, "
+                        f"{history_entry['value']}"
+                    ))
+            case "remove":
+                entry_id = int(input("Please enter a history entry id: "))
+                for history_entry in history:
+                    if history_entry["id"] == entry_id:
+                        history.remove(history_entry)
             case "exit":
                 break
             case "clear":
                 result = 0
+                history = []
                 print(f"Result: {result}")
             case _:
                 print("Invalid command. Please try again.")
