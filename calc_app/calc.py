@@ -1,12 +1,14 @@
 """ calc """
 
-from typing import Any
+from typing import Any, Generator
 
-# def get_next_id(history):
-#     if not history:
-#         return 1
-#
-#     return max([entry["id"] for entry in history]) + 1
+
+def input_operand() -> float:
+    return float(input("Enter a number > "))
+
+
+def output_result(result: float) -> None:
+    print(f"Result: {result}")
 
 
 def gen_entry_id():
@@ -16,11 +18,51 @@ def gen_entry_id():
         yield counter
 
 
+calc_ops = {
+    "add": lambda a, b: a + b,
+    "sub": lambda a, b: a - b,
+    "mul": lambda a, b: a * b,
+    "div": lambda a, b: a / b,
+    "exp": lambda a, b: a ** b
+}
+
+
+def calc_result(history: list[Any]) -> float:
+    """ calc result """
+    result = 0
+    for entry in history:
+        # op_name = entry["name"]
+        # op_func = calc_ops[op_name]
+        # result = op_func(result, entry["value"])
+        result = calc_ops[entry["name"]](result, entry["value"])
+    return result
+
+
+def append_history(
+        history: list[Any],
+        entry_id: Generator[int, None, None],
+        op_name: str,
+        op_value: float) -> None:
+    """ append history """
+    history_entry = {
+        "id": next(entry_id),
+        "name": op_name,
+        "value": op_value
+    }
+    history.append(history_entry)
+
+
+def calc_command(history, entry_id, op_name) -> None:
+    """ calc command """
+    operand = input_operand()
+    append_history(history, entry_id, op_name, operand)
+    output_result(calc_result(history))
+
+
 def calc_app(title: str) -> None:
     """ calc app function """
 
     entry_id = gen_entry_id()
-    result = 0.0
     history: list[Any] = []
 
     print(title)
@@ -31,55 +73,15 @@ def calc_app(title: str) -> None:
 
         match command:
             case "add":
-                operand = float(input("Enter a number > "))
-                result = result + operand
-                print(f"Result: {result}")
-                history_entry = {
-                    "id": next(entry_id),
-                    "name": "add",
-                    "value": operand
-                }
-                history.append(history_entry)
+                calc_command(history, entry_id, "add")
             case "subtract":
-                operand = float(input("Enter a number > "))
-                result = result - operand
-                print(f"Result: {result}")
-                history_entry = {
-                    "id": next(entry_id),
-                    "name": "subtract",
-                    "value": operand
-                }
-                history.append(history_entry)
+                calc_command(history, entry_id, "sub")
             case "multiply":
-                operand = float(input("Enter a number > "))
-                result = result * operand
-                print(f"Result: {result}")
-                history_entry = {
-                    "id": next(entry_id),
-                    "name": "multiply",
-                    "value": operand
-                }
-                history.append(history_entry)
+                calc_command(history, entry_id, "mul")
             case "divide":
-                operand = float(input("Enter a number > "))
-                result = result / operand
-                print(f"Result: {result}")
-                history_entry = {
-                    "id": next(entry_id),
-                    "name": "divide",
-                    "value": operand
-                }
-                history.append(history_entry)
+                calc_command(history, entry_id, "div")
             case "exponent":
-                operand = float(input("Enter a number > "))
-                result = result ** operand
-                print(f"Result: {result}")
-                history_entry = {
-                    "id": next(entry_id),
-                    "name": "exponent",
-                    "value": operand
-                }
-                history.append(history_entry)
+                calc_command(history, entry_id, "exp")
             case "history":
                 for history_entry in history:
                     print((
