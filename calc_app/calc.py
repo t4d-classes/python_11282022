@@ -1,113 +1,84 @@
-""" calc """
+""" calc module """
+from typing import Callable
+import math
 
-from typing import Any, Generator
-
-
-def input_operand() -> float:
-    return float(input("Enter a number > "))
-
-
-def output_result(result: float) -> None:
-    print(f"Result: {result}")
+from calc_app.history import History
+from calc_app.input_output import (
+    input_operand, output_result
+)
 
 
-def gen_entry_id():
-    counter = 0
-    while True:
-        counter = counter + 1
-        yield counter
+class Calculator:
+    """ calculator class """
 
+    def __init__(self, title: str):
+        self.title = title
+        self.__history = History()
 
-calc_ops = {
-    "add": lambda a, b: a + b,
-    "sub": lambda a, b: a - b,
-    "mul": lambda a, b: a * b,
-    "div": lambda a, b: a / b,
-    "exp": lambda a, b: a ** b
-}
+        self.calc_ops: dict[str, Callable[[float, float], float]] = {
+            "add": lambda a, b: a + b,
+            "sub": lambda a, b: a - b,
+            "mul": lambda a, b: a * b,
+            "div": lambda a, b: a / b,
+            "exp": math.pow
+        }
 
+    def command_calc(self, op_name: str) -> None:
+        """ calc command """
+        operand = input_operand()
+        self.__history.append_entry(op_name, operand)
+        output_result(self.calc_result())
 
-def calc_result(history: list[Any]) -> float:
-    """ calc result """
-    result = 0
-    for entry in history:
-        # op_name = entry["name"]
-        # op_func = calc_ops[op_name]
-        # result = op_func(result, entry["value"])
-        result = calc_ops[entry["name"]](result, entry["value"])
-    return result
+    def command_history(self) -> None:
+        """ command history """
+        for history_entry in self.__history.get_history_entries():
+            print((
+                f"{history_entry.entry_id}, "
+                f"{history_entry.op_name}, "
+                f"{history_entry.op_value}"
+            ))
 
+    def command_clear(self) -> None:
+        """ command clear"""
+        self.__history.clear_entries()
 
-def append_history(
-        history: list[Any],
-        entry_id: Generator[int, None, None],
-        op_name: str,
-        op_value: float) -> None:
-    """ append history """
-    history_entry = {
-        "id": next(entry_id),
-        "name": op_name,
-        "value": op_value
-    }
-    history.append(history_entry)
+    def command_remove_entry(self) -> None:
+        """ command remove entry """
+        entry_id = int(input("Please enter a history entry id: "))
+        self.__history.remove_entry(entry_id)
 
+    @staticmethod
+    def command_invalid() -> None:
+        """ command invalid """
+        print("Invalid command. Please try again.")
 
-def calc_command(history, entry_id, op_name) -> None:
-    """ calc command """
-    operand = input_operand()
-    append_history(history, entry_id, op_name, operand)
-    output_result(calc_result(history))
+    def calc_result(self) -> float:
+        """ calc result """
+        result = 0.0
+        for entry in self.__history.get_history_entries():
+            result = self.calc_ops[entry.op_name](result, entry.op_value)
+        return result
 
+    def run(self) -> None:
+        """ run """
 
-def calc_app(title: str) -> None:
-    """ calc app function """
-
-    entry_id = gen_entry_id()
-    history: list[Any] = []
-
-    print(title)
-
-    command = input("Enter a command > ")
-
-    while True:
-
-        match command:
-            case "add":
-                calc_command(history, entry_id, "add")
-            case "subtract":
-                calc_command(history, entry_id, "sub")
-            case "multiply":
-                calc_command(history, entry_id, "mul")
-            case "divide":
-                calc_command(history, entry_id, "div")
-            case "exponent":
-                calc_command(history, entry_id, "exp")
-            case "history":
-                for history_entry in history:
-                    print((
-                        f"{history_entry['id']}, "
-                        f"{history_entry['name']}, "
-                        f"{history_entry['value']}"
-                    ))
-            case "remove":
-                entry_id = int(input("Please enter a history entry id: "))
-                for history_entry in history:
-                    if history_entry["id"] == entry_id:
-                        history.remove(history_entry)
-            case "exit":
-                break
-            case "clear":
-                result = 0
-                history = []
-                print(f"Result: {result}")
-            case _:
-                print("Invalid command. Please try again.")
+        print(self.title)
 
         command = input("Enter a command > ")
 
+        while True:
+            match command:
+                case "add" | "sub" | "mul" | "div" | "exp":
+                    self.command_calc(command)
+                case "history":
+                    self.command_history()
+                case "remove":
+                    self.command_remove_entry()
+                case "clear":
+                    self.command_clear()
+                case "exit":
+                    break
+                case _:
+                    self.command_invalid()
 
-print(f"calc.py __name__: {__name__}")
-
-if __name__ == "__main__":
-
-    calc_app("Ran Calc App from calc.py")
+            command = input("Enter a command > ")
