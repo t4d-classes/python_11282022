@@ -1,31 +1,16 @@
-
-def do_something(fn):
-    fn()
+import demos.person
 
 
-def do_it(x):
-    print("do it: " + str(x))
-
-
-def outer():
-
-    t = 3
-
-    # a_fn = lambda: do_it(t)
-    def inner():
-        do_it(t)
-
-    def update(i: int) -> None:
-        nonlocal t
-        t = i
-
-    return (inner, update)
-
-
-inner_fn, update_fn = outer()
-
-do_something(inner_fn)
-
-update_fn(4)
-
-do_something(inner_fn)
+# person = {
+#     "firstName": "Bob",
+#     "lastName": "Smith"
+# }
+#
+# def display_fullname(person):
+#     print(f"{person['firstName']} {person['lastName']}")
+#
+# def display_recordheader(person):
+#     print(f"{person['lastName']}, {person['firstName']}")
+#
+#
+# display_fullname(person)
