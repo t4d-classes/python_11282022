@@ -27,7 +27,7 @@ class Calculator:
         """ calc command """
         operand = input_operand()
         self.__history.append_entry(op_name, operand)
-        output_result(self.calc_result())
+        output_result(self.result)
 
     def command_history(self) -> None:
         """ command history """
@@ -52,7 +52,8 @@ class Calculator:
         """ command invalid """
         print("Invalid command. Please try again.")
 
-    def calc_result(self) -> float:
+    @property
+    def result(self) -> float:
         """ calc result """
         result = 0.0
         for entry in self.__history.get_history_entries():

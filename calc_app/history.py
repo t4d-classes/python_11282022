@@ -1,5 +1,5 @@
 """ history module """
-
+from typing import Iterator
 from calc_app.history_entry import HistoryEntry
 from calc_app.utils import gen_entry_id
 
@@ -11,11 +11,19 @@ class History:
         self.__entry_id = gen_entry_id()
         self.__history_entries: list[HistoryEntry] = []
 
-    def get_history_entries(self) -> list[HistoryEntry]:
-        """ get history entries """
-        # return [HistoryEntry(**entry.__dict__) for entry in
-        # self.__history_entries]
-        return self.__history_entries.copy()
+    def __iter__(self) -> Iterator[HistoryEntry]:
+        self.__current_iter = iter(self.__history_entries)
+        return self.__current_iter
+
+    def __next__(self) -> HistoryEntry:
+        return next(self.__current_iter)
+
+    # @property
+    # def history_entries(self) -> list[HistoryEntry]:
+    #     """ get history entries """
+    #     # return [HistoryEntry(**entry.__dict__) for entry in
+    #     # self.__history_entries]
+    #     return self.__history_entries.copy()
 
     def append_entry(
             self,
@@ -33,3 +41,16 @@ class History:
     def clear_entries(self) -> None:
         """ clear entries """
         self.__history_entries = []
+
+
+history = History()
+history.append_entry("add", 2.0)
+history.append_entry("sub", 10.0)
+
+for entry in history:
+    print(entry)
+
+nums = np.array([1,2,3,4,5])
+
+double_nums = nums * 2
+
