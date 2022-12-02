@@ -2,14 +2,16 @@
 from typing import Iterator
 from calc_app.history_entry import HistoryEntry
 from calc_app.utils import gen_entry_id
+from calc_app.history_storage import HistoryStorage
 
 
 class History:
     """ history class """
 
-    def __init__(self) -> None:
+    def __init__(self, storage: HistoryStorage) -> None:
         self.__entry_id = gen_entry_id()
         self.__history_entries: list[HistoryEntry] = []
+        self.__storage = storage
 
     def __iter__(self) -> Iterator[HistoryEntry]:
         self.__current_iter = iter(self.__history_entries)
@@ -42,15 +44,8 @@ class History:
         """ clear entries """
         self.__history_entries = []
 
+    async def load_history(self) -> None:
+        self.__history_entries = await self.__storage.load()
 
-history = History()
-history.append_entry("add", 2.0)
-history.append_entry("sub", 10.0)
-
-for entry in history:
-    print(entry)
-
-nums = np.array([1,2,3,4,5])
-
-double_nums = nums * 2
-
+    async def save_history(self) -> None:
+        await self.__storage.save(self.__history_entries)

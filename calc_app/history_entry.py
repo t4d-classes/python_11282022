@@ -1,5 +1,7 @@
 """ history entry module """
 
+from __future__ import annotations
+
 
 class HistoryEntry:
     """ history entry class """
@@ -8,3 +10,4 @@ class HistoryEntry:
         self.entry_id = entry_id
         self.op_name = op_name
         self.op_value = op_value
+

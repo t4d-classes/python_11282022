@@ -3,6 +3,7 @@ from typing import Callable
 import math
 
 from calc_app.history import History
+from calc_app.history_storage import HistoryTextStorage
 from calc_app.input_output import (
     input_operand, output_result
 )
@@ -13,7 +14,10 @@ class Calculator:
 
     def __init__(self, title: str):
         self.title = title
-        self.__history = History()
+
+        history_text_storage = HistoryTextStorage("history.txt")
+
+        self.__history = History(storage=history_text_storage)
 
         self.calc_ops: dict[str, Callable[[float, float], float]] = {
             "add": lambda a, b: a + b,
@@ -31,7 +35,7 @@ class Calculator:
 
     def command_history(self) -> None:
         """ command history """
-        for history_entry in self.__history.get_history_entries():
+        for history_entry in self.__history:
             print((
                 f"{history_entry.entry_id}, "
                 f"{history_entry.op_name}, "
@@ -47,6 +51,14 @@ class Calculator:
         entry_id = int(input("Please enter a history entry id: "))
         self.__history.remove_entry(entry_id)
 
+    async def command_load_history(self) -> None:
+        """ command load history """
+        await self.__history.load_history()
+
+    async def command_save_history(self) -> None:
+        """ command save history """
+        await self.__history.save_history()
+
     @staticmethod
     def command_invalid() -> None:
         """ command invalid """
@@ -56,11 +68,11 @@ class Calculator:
     def result(self) -> float:
         """ calc result """
         result = 0.0
-        for entry in self.__history.get_history_entries():
+        for entry in self.__history:
             result = self.calc_ops[entry.op_name](result, entry.op_value)
         return result
 
-    def run(self) -> None:
+    async def run(self) -> None:
         """ run """
 
         print(self.title)
@@ -75,6 +87,10 @@ class Calculator:
                     self.command_history()
                 case "remove":
                     self.command_remove_entry()
+                case "load":
+                    await self.command_load_history()
+                case "save":
+                    await self.command_save_history()
                 case "clear":
                     self.command_clear()
                 case "exit":
